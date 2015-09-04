@@ -1,0 +1,11 @@
+# IDEA 
+.idea/
+
+# secrets
+gradle.properties
+
+#gradle 
+gradle/
+.gradle/
+
+build/

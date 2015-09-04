@@ -1,0 +1,35 @@
+group 'com.tomrenn.njtrains'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'application'
+
+mainClassName = 'com.tomrenn.njtrains.caboose.Main'
+
+
+//sourceCompatibility = 1.5
+
+repositories {
+    mavenCentral()
+}
+
+run {
+    environment System.properties // pass environment vars
+}
+
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+
+    compile 'com.google.api-client:google-api-client-java6:1.19.0'
+    compile 'com.google.http-client:google-http-client-jackson2:1.19.0'
+    compile 'com.google.oauth-client:google-oauth-client-jetty:1.19.0'
+    compile 'com.google.apis:google-api-services-storage:v1-rev18-1.19.0'
+
+    compile 'io.reactivex:rxjava:1.0.9'
+    compile 'com.google.guava:guava:18.0'
+
+    compile 'com.squareup.okhttp:okhttp:2.4.0'
+
+    compile 'org.jsoup:jsoup:1.8.3'
+
+}
