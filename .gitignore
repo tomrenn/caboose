@@ -3,6 +3,7 @@
 
 # secrets
 gradle.properties
+keys/
 
 #gradle 
 gradle/
