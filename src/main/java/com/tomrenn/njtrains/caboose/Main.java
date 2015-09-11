@@ -1,62 +1,21 @@
 package com.tomrenn.njtrains.caboose;
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.InputStreamContent;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.storage.Storage;
-import com.google.api.services.storage.model.Bucket;
-import com.google.api.services.storage.model.ObjectAccessControl;
-import com.google.api.services.storage.model.StorageObject;
-import com.squareup.okhttp.OkHttpClient;
-import rx.Observable;
-import rx.functions.Func1;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
-import java.security.GeneralSecurityException;
-import java.util.Arrays;
+import javax.inject.Inject;
 
-/**
- * Created by tomrenn on 9/2/15.
- */
+
 public class Main {
-    static String APPLICATION_NAME;
+    @Inject Storage storage;
 
-    public static void main(String[] args) throws IOException, GeneralSecurityException {
-        APPLICATION_NAME = System.getenv("GOOGLE_PROJECT_NAME");
-        JacksonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-        HttpTransport httpTransport = new NetHttpTransport();
-        Auth auth = new Auth(jsonFactory, httpTransport);
-        Credential creds = null;
-        try {
-            creds = auth.buildGoogleCredential();
-        } catch (GeneralSecurityException|IOException e){
-            // log error
-            System.exit(1);
-        }
+    public Main(){
+        AppComponent appComponent = DaggerAppComponent.builder().build();
+        appComponent.inject(this);
+        System.out.println(storage);
+    }
 
-        String BUCKET_NAME = "njtrains";
-        Storage client = new Storage.Builder(httpTransport, jsonFactory, creds)
-                .setApplicationName(APPLICATION_NAME).build();
-
-        Storage.Buckets.Get getBucket = client.buckets().get(BUCKET_NAME);
-        getBucket.setProjection("full");
-        Bucket bucket = getBucket.execute();
-        System.out.println("name: " + BUCKET_NAME);
-        System.out.println("location: " + bucket.getLocation());
-        System.out.println("timeCreated: " + bucket.getTimeCreated());
-        System.out.println("owner: " + bucket.getOwner());
-
-        File file = new File("/Users/tomrenn/tmp/hello.txt");
-        InputStream fileStream = new FileInputStream(file);
-        uploadStream(client, "hello.txt", "text/plain", fileStream, "njtrains");
+    public static void main(String[] args) {
+        Main main = new Main();
 
 
 //        final String NJ_USERNAME = System.getenv("NJ_USERNAME");
@@ -86,29 +45,4 @@ public class Main {
         // upload the latestZip object
     }
 
-    /**
-     * Uploads data to an object in a bucket.
-     *
-     * @param name the name of the destination object.
-     * @param contentType the MIME type of the data.
-     * @param stream the data - for instance, you can use a FileInputStream to upload a file.
-     * @param bucketName the name of the bucket to create the object in.
-     */
-    public static void uploadStream(Storage client,
-            String name, String contentType, InputStream stream, String bucketName)
-            throws IOException, GeneralSecurityException {
-        InputStreamContent contentStream = new InputStreamContent(contentType, stream);
-        StorageObject objectMetadata = new StorageObject()
-                // Set the destination object name
-                .setName(name)
-                        // Set the access control list to publicly read-only
-                .setAcl(Arrays.asList(
-                        new ObjectAccessControl().setEntity("allUsers").setRole("READER")));
-
-        // Do the insert
-        Storage.Objects.Insert insertRequest = client.objects().insert(
-                bucketName, objectMetadata, contentStream);
-
-        insertRequest.execute();
-    }
 }

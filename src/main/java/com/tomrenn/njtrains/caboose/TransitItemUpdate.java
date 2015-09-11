@@ -28,6 +28,10 @@ public class TransitItemUpdate implements Observable.OnSubscribe<TransitData.Tra
         this.lastZip = lastZip;
     }
 
+    public static Observable<TransitData.TransitItem> asObservable(){
+        return null;
+    }
+
     @Override
     public void call(final Subscriber<? super TransitData.TransitItem> subscriber) {
         Request request = new Request.Builder()
