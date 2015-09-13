@@ -58,6 +58,7 @@ public class Main {
         log.info("Starting simple web server");
         get("/", (req, res) -> getTransitData(res));
 
+        // look for updated TransitData every X minutes
         Observable.timer(0, 10, TimeUnit.MINUTES)
                 .flatMap(aLong -> transitService.savedTransitData())
                 .subscribe(Main.this::cacheTransitData,
