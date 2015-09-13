@@ -28,8 +28,12 @@ public class TransitData {
     }
 
     public boolean isNewer(@Nullable TransitData transitData){
-        return transitData == null
-                || rail.isNewer(transitData.rail) || bus.isNewer(transitData.bus);
+        if (transitData == null){
+            return true;
+        }
+        boolean isBusNewer = bus != null && bus.isNewer(transitData.bus);
+        boolean isRailNewer = rail != null && rail.isNewer(transitData.rail);
+        return isBusNewer || isRailNewer;
     }
 
     @Override

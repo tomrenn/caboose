@@ -11,6 +11,8 @@ import javax.inject.Singleton;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
 
 @Module
 public class DataModule {
@@ -30,4 +32,5 @@ public class DataModule {
     Gson providesGson(){
         return new GsonBuilder().create();
     }
+
 }

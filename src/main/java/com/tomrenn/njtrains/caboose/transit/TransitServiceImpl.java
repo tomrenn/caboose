@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
 import com.tomrenn.njtrains.caboose.google.GoogleStorage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -16,6 +18,7 @@ import static com.google.common.io.Closeables.closeQuietly;
 
 @Singleton
 public class TransitServiceImpl implements TransitService {
+    static final Logger log = LoggerFactory.getLogger(TransitServiceImpl.class);
     static final String TRANSIT_DATA_NAME = "transit.json";
     GoogleStorage googleStorage;
     Gson gson;
@@ -58,18 +61,17 @@ public class TransitServiceImpl implements TransitService {
 
     public Observable<TransitData> saveIfNewer(TransitData previous, final TransitData newer){
         if (newer.isNewer(previous)){
+            log.info("New transit data object created");
             String json = gson.toJson(newer, TransitData.class);
             return googleStorage.putJson(TRANSIT_DATA_NAME, json)
-                    .map(inputStream -> newer);
+                    .map(inputStream -> newer)
+                    .doOnCompleted(() -> log.info("Save Completed"));
         } else {
+            log.info("No new data");
             return Observable.just(previous);
         }
     }
 
-    public Observable<Void> saveTransitData(TransitData transitData) {
-        String json = gson.toJson(transitData, TransitData.class);
-        return googleStorage.putJson(TRANSIT_DATA_NAME, json).cast(Void.class);
-    }
 
     @Override
     public Observable<TransitData> savedTransitData() {

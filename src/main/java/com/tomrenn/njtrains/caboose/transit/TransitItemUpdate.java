@@ -72,10 +72,10 @@ public class TransitItemUpdate implements Observable.OnSubscribe<TransitItem> {
      * Checks if zip file hash is different.
      * If it is, upload and return new TransitItem.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     TransitItem handleResponse(Response response) throws IOException, NoSuchAlgorithmException {
         String filename = Hashing.md5().hashString(zipUrl, Charsets.UTF_8).toString();
         File tmpFile = File.createTempFile(filename, ".zip");
-        System.out.println("temp file " + tmpFile.getAbsolutePath());
 
         Sha1Sink shaSink = new Sha1Sink(Okio.sink(tmpFile));
 
@@ -89,8 +89,10 @@ public class TransitItemUpdate implements Observable.OnSubscribe<TransitItem> {
             // checksum is different, let's upload the new zip
             Observable<String> upload = googleStorage.putPublicFile(tmpFile, "application/zip");
             String mediaUrl = upload.toBlocking().first();
+            tmpFile.delete();
             return new TransitItem(System.currentTimeMillis(), latestHash, mediaUrl);
         } else {
+            tmpFile.delete();
             return lastTransitItem;
         }
     }
