@@ -1,48 +1,65 @@
 package com.tomrenn.njtrains.caboose;
 
-import com.google.api.services.storage.Storage;
+import com.tomrenn.njtrains.caboose.google.GoogleStorage;
+import com.tomrenn.njtrains.caboose.transit.TransitData;
+import com.tomrenn.njtrains.caboose.transit.TransitService;
+import rx.Observable;
+import rx.functions.Action1;
 
 import javax.inject.Inject;
 
+import java.util.concurrent.TimeUnit;
+
+import static spark.Spark.*;
 
 public class Main {
-    @Inject Storage storage;
+    @Inject GoogleStorage storage;
+    @Inject TransitService transitService;
+
+    TransitData cachedData;
 
     public Main(){
-        AppComponent appComponent = DaggerAppComponent.builder().build();
+        AppComponent appComponent = Components.getAppComponent();
         appComponent.inject(this);
         System.out.println(storage);
     }
 
     public static void main(String[] args) {
         Main main = new Main();
-
-
-//        final String NJ_USERNAME = System.getenv("NJ_USERNAME");
-//        final String NJ_PASSWORD = System.getenv("NJ_PASSWORD");
-//
-//        OkHttpClient httpClient = new OkHttpClient();
-//        CookieManager cookieManager = new CookieManager();
-//        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-//        httpClient.setCookieHandler(cookieManager);
-//
-//        Observable<NJTransitZipUrls> dataUrls = Observable
-//                .create(new GetTransitZipUrls(httpClient, NJ_USERNAME, NJ_PASSWORD));
-//
-//        Observable<TransitData.TransitItem> railItem = dataUrls
-//                .flatMap(njTransitZipUrls -> Observable.create(new TransitItemUpdate(httpClient, client, njTransitZipUrls.railUrl, null)));
-
-
-        // fetch latest transit_data.json
-        // build into TransitData object.
-
-        // for (rail, bus) get TransitItem object
-        // - Pull zip file, compare hash to TransitItem from TransitData
-        //  - If hash is different, upload zip and build new TransitItem
-        //  - else return the same latestZip
-
-        // compare generated TransitItem to one from Bucket, if different
-        // upload the latestZip object
+        main.doStuff();
     }
+
+    public void doStuff(){
+        get("/hello", (req, res) -> "Hello world");
+        get("/goodbye", (req, res) -> "Goodbye!");
+
+        transitService.savedTransitData()
+                .subscribe(transitData -> {
+                    if (transitData == null) {
+                        System.out.println("Fetching transit data");
+                        transitService.fetchTransitData()
+                                .subscribe(Main.this::cacheTransitData,
+                                        throwable -> throwable.printStackTrace());
+                    } else {
+                        cacheTransitData(transitData);
+                    }
+                }, throwable -> throwable.printStackTrace());
+
+        Observable.interval(5, TimeUnit.SECONDS)
+                .subscribe(aLong -> {
+                    System.out.println("new interval " + aLong);
+                });
+    }
+
+    public void cacheTransitData(TransitData transitData){
+        this.cachedData = transitData;
+    }
+
+    /** Mildly expensive operation to download zip files */
+    public void updateData() {
+        Observable<TransitData> savedData = transitService.savedTransitData();
+//        Observable<TransitData> newData =
+    }
+
 
 }

@@ -1,30 +1,37 @@
-package com.tomrenn.njtrains.caboose;
+package com.tomrenn.njtrains.caboose.transit;
 
 import com.squareup.okhttp.*;
+import com.tomrenn.njtrains.caboose.AppComponent;
+import com.tomrenn.njtrains.caboose.Components;
+import com.tomrenn.njtrains.caboose.DaggerAppComponent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import rx.Observable;
 import rx.Subscriber;
 
+import javax.inject.Inject;
 import java.io.IOException;
-import java.net.CookieManager;
-import java.net.CookiePolicy;
 
 /**
- *
+ * Logs into njtransit.com/developer - finds the urls for zip files.
+ * NOTE: OkHttpClient must have cookies enabled so later requests to the files is allowed.
  */
 public class GetTransitZipUrls implements Observable.OnSubscribe<NJTransitZipUrls> {
     static final String LOGIN_URL = "https://www.njtransit.com/mt/mt_servlet.srv?hdnPageAction=MTDevLoginSubmitTo";
-    OkHttpClient httpClient;
+    @Inject OkHttpClient httpClient;
     String username;
     String password;
 
-    public GetTransitZipUrls(OkHttpClient httpClient, String username, String password) {
-        this.httpClient = httpClient;
-        this.username = username;
-        this.password = password;
+    public GetTransitZipUrls() {
+        AppComponent appComponent = Components.getAppComponent();
+        appComponent.inject(this);
+        this.username = System.getenv("NJ_USERNAME");
+        this.password = System.getenv("NJ_PASSWORD");
+    }
+
+    public static Observable<NJTransitZipUrls> observable(){
+        return Observable.create(new GetTransitZipUrls());
     }
 
     @Override

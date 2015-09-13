@@ -1,4 +1,4 @@
-package com.tomrenn.njtrains.caboose;
+package com.tomrenn.njtrains.caboose.google;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
@@ -22,6 +22,11 @@ import java.util.Set;
 
 @Module
 public class GoogleModule {
+
+    @Provides @Singleton
+    GoogleStorage providesGoogleStorage(Storage storage){
+        return new GoogleStorageImpl(storage);
+    }
 
     @Provides @Singleton
     JsonFactory providesJsonFactory(){

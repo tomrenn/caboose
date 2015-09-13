@@ -1,4 +1,4 @@
-package com.tomrenn.njtrains.caboose;
+package com.tomrenn.njtrains.caboose.util;
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;

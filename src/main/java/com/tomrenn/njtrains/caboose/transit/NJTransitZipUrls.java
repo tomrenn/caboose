@@ -1,9 +1,9 @@
-package com.tomrenn.njtrains.caboose;
+package com.tomrenn.njtrains.caboose.transit;
 
 
 public class NJTransitZipUrls {
-    final String railUrl;
-    final String busUrl;
+    public final String railUrl;
+    public final String busUrl;
 
     public NJTransitZipUrls(String railUrl, String busUrl) {
         this.railUrl = railUrl;
