@@ -1,0 +1,15 @@
+version: v1
+kind: Pod
+metadata:
+  name: api
+spec:
+  containers:
+    - name: api
+      image: us.gcr.io/kinetic-silicon-686/rennt-njt:v2
+      imagePullPolicy: Always
+      ports:
+        - containerPort: 4567
+          hostPort: 80
+          protocol: TCP
+  restartPolicy: Always
+  dnsPolicy: Default
